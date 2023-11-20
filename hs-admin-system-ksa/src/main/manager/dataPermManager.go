@@ -6,12 +6,12 @@ import (
 	"hs-admin-system-ksa/main/config"
 	"hs-admin-system-ksa/main/model"
 	"hs-admin-system-ksa/main/params"
-	"strconv"
 	"time"
+	"xorm.io/xorm"
 )
 
 func SelectPage(dataPage model.DataPage[model.AdminDataPermDto], query params.DataPermQuery) (result *model.DataPage[model.AdminDataPermDto], err error) {
-	sql := buildSelectSql(query)
+	sqlSession := buildSelectSqlSession(query)
 
 	var pageNo int
 	if dataPage.PageNo <= 1 {
@@ -21,13 +21,7 @@ func SelectPage(dataPage model.DataPage[model.AdminDataPermDto], query params.Da
 	}
 
 	var dataList []model.AdminDataPerm
-
-	orderBy := fmt.Sprintf("%s %s", dataPage.OrderBy, dataPage.Order)
-	sql += " ORDER BY " + orderBy
-	sql += " LIMIT " + strconv.Itoa((pageNo-1)*dataPage.PageSize) + "," + strconv.Itoa(dataPage.PageSize)
-	fmt.Println("Sql: ", sql)
-	count, err := config.SqlServer.SQL(sql).FindAndCount(&dataList)
-	//count, err := config.SqlServer.FindAndCount(&dataList)
+	count, err := sqlSession.OrderBy(dataPage.OrderBy+" "+dataPage.Order).Limit(dataPage.PageSize, (pageNo-1)*dataPage.PageSize).FindAndCount(&dataList)
 	if err != nil {
 		fmt.Println("分页条件查询失败 ", err.Error())
 		return nil, err
@@ -82,16 +76,26 @@ func Create(createParams *params.DataPermCreate) (count int64, err error) {
 	return config.SqlServer.InsertOne(dataPerm)
 }
 
-func buildSelectSql(query params.DataPermQuery) string {
-	var sql = "SELECT `id`, `biz_type`, `biz_id`, `user_id`, `remark`, `deleted`, `created_by`, `created_time`, `updated_by`, `updated_time` FROM `admin_data_perm` WHERE deleted = 0"
+// 组装查询条件
+func buildSelectSqlSession(query params.DataPermQuery) *xorm.Session {
+	sqlSession := config.SqlServer.Where("deleted = ?", 0)
 	if query.BizType != 0 {
-		sql += " AND biz_type = " + strconv.Itoa(query.BizType)
+		sqlSession = sqlSession.And("biz_type = ?", query.BizType)
 	}
 	if query.BizId != "" {
-		sql += " AND biz_id = " + query.BizId
+		sqlSession = sqlSession.And("biz_id = ?", query.BizId)
+
 	}
 	if query.UserId != 0 {
-		sql += " AND user_id = " + strconv.Itoa(query.UserId)
+		sqlSession = sqlSession.And("user_id = ?", query.UserId)
 	}
-	return sql
+
+	if query.BizId == "" && query.BizIdList != nil {
+		sqlSession = sqlSession.In("biz_id", query.BizIdList)
+	}
+
+	if query.UserId == 0 && query.UserIdList != nil {
+		sqlSession = sqlSession.In("user_id", query.UserIdList)
+	}
+	return sqlSession
 }

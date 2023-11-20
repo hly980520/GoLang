@@ -1,16 +1,35 @@
-package dataPermManager
+package manager
 
 import (
 	"fmt"
 	"github.com/xyctruth/stream"
 	"hs-admin-system-ksa/main/config"
 	"hs-admin-system-ksa/main/model"
-	"hs-admin-system-ksa/main/params"
 	"time"
 	"xorm.io/xorm"
 )
 
-func SelectPage(dataPage model.DataPage[model.AdminDataPermDto], query params.DataPermQuery) (result *model.DataPage[model.AdminDataPermDto], err error) {
+type DataPermManager struct {
+}
+
+func NewDataPermManager() DataPermManager {
+	return DataPermManager{}
+}
+
+func (d DataPermManager) SelectList(query model.DataPermQuery) (result []model.AdminDataPermDto, err error) {
+	var dataList []model.AdminDataPerm
+	err = buildSelectSqlSession(query).Find(&dataList)
+	if err != nil {
+		fmt.Println("条件查询失败 ", err.Error())
+		return nil, err
+	}
+	list := stream.NewSliceByMapping[model.AdminDataPerm, model.AdminDataPermDto, model.AdminDataPermDto](dataList).Map(func(perm model.AdminDataPerm) model.AdminDataPermDto {
+		return *perm.ToDto()
+	}).ToSlice()
+	return list, nil
+}
+
+func (d DataPermManager) SelectPage(dataPage model.DataPage[model.AdminDataPermDto], query model.DataPermQuery) (result *model.DataPage[model.AdminDataPermDto], err error) {
 	sqlSession := buildSelectSqlSession(query)
 
 	var pageNo int
@@ -37,7 +56,7 @@ func SelectPage(dataPage model.DataPage[model.AdminDataPermDto], query params.Da
 }
 
 // SelectById 根据id查询
-func SelectById(id int) (result *model.AdminDataPerm, err error) {
+func (d DataPermManager) SelectById(id int) (result *model.AdminDataPerm, err error) {
 	data := new(model.AdminDataPerm)
 	_, e := config.SqlServer.ID(id).Get(data)
 	if e != nil {
@@ -47,7 +66,7 @@ func SelectById(id int) (result *model.AdminDataPerm, err error) {
 	return data, nil
 }
 
-func UpdateById(updateParams *params.DataPermUpdate) (count int64, err error) {
+func (d DataPermManager) UpdateById(updateParams *model.DataPermUpdate) (count int64, err error) {
 	dataPerm := new(model.AdminDataPerm)
 	dataPerm.BizType = updateParams.BizType
 	dataPerm.BizId = updateParams.BizId
@@ -59,11 +78,11 @@ func UpdateById(updateParams *params.DataPermUpdate) (count int64, err error) {
 	return config.SqlServer.ID(updateParams.Id).Update(dataPerm)
 }
 
-func DeleteById(id int, userAccount string) (count int64, err error) {
+func (d DataPermManager) DeleteById(id int, userAccount string) (count int64, err error) {
 	return config.SqlServer.ID(id).Update(&model.AdminDataPerm{Deleted: id, UpdatedBy: userAccount, UpdatedTime: time.Now()})
 }
 
-func Create(createParams *params.DataPermCreate) (count int64, err error) {
+func (d DataPermManager) Create(createParams *model.DataPermCreate) (count int64, err error) {
 	dataPerm := new(model.AdminDataPerm)
 	dataPerm.BizType = createParams.BizType
 	dataPerm.BizId = createParams.BizId
@@ -77,7 +96,7 @@ func Create(createParams *params.DataPermCreate) (count int64, err error) {
 }
 
 // 组装查询条件
-func buildSelectSqlSession(query params.DataPermQuery) *xorm.Session {
+func buildSelectSqlSession(query model.DataPermQuery) *xorm.Session {
 	sqlSession := config.SqlServer.Where("deleted = ?", 0)
 	if query.BizType != 0 {
 		sqlSession = sqlSession.And("biz_type = ?", query.BizType)

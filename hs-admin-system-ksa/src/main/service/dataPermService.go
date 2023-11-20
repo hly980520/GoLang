@@ -1,18 +1,26 @@
-package dataPermService
+package service
 
 import (
 	"errors"
 	"fmt"
-	dataPermManager "hs-admin-system-ksa/main/manager"
+	"hs-admin-system-ksa/main/manager"
 	"hs-admin-system-ksa/main/model"
-	"hs-admin-system-ksa/main/params"
 )
 
-func QueryPage(dataPage model.DataPage[model.AdminDataPermDto], query params.DataPermQuery) (result *model.DataPage[model.AdminDataPermDto], err error) {
+type DataPermService struct {
+}
+
+func NewDataPermService() DataPermService {
+	return DataPermService{}
+}
+
+var dataPermManager = manager.NewDataPermManager()
+
+func (d DataPermService) QueryPage(dataPage model.DataPage[model.AdminDataPermDto], query model.DataPermQuery) (result *model.DataPage[model.AdminDataPermDto], err error) {
 	return dataPermManager.SelectPage(dataPage, query)
 }
 
-func QueryById(id int) (dataPermDto *model.AdminDataPermDto, err error) {
+func (d DataPermService) QueryById(id int) (dataPermDto *model.AdminDataPermDto, err error) {
 	dataPerm, err := dataPermManager.SelectById(id)
 	if err != nil {
 		return nil, err
@@ -20,7 +28,7 @@ func QueryById(id int) (dataPermDto *model.AdminDataPermDto, err error) {
 	return dataPerm.ToDto(), nil
 }
 
-func UpdateById(updateParams *params.DataPermUpdate) (err error) {
+func (d DataPermService) UpdateById(updateParams *model.DataPermUpdate) (err error) {
 	updateById, err := dataPermManager.UpdateById(updateParams)
 	if err != nil {
 		return err
@@ -32,7 +40,7 @@ func UpdateById(updateParams *params.DataPermUpdate) (err error) {
 	return nil
 }
 
-func DeleteById(id int, userAccount string) (err error) {
+func (d DataPermService) DeleteById(id int, userAccount string) (err error) {
 	deleteById, err := dataPermManager.DeleteById(id, userAccount)
 	if err != nil {
 		return err
@@ -44,7 +52,7 @@ func DeleteById(id int, userAccount string) (err error) {
 	return nil
 }
 
-func Create(createParams *params.DataPermCreate) (err error) {
+func (d DataPermService) Create(createParams *model.DataPermCreate) (err error) {
 	create, err := dataPermManager.Create(createParams)
 	if err != nil {
 		return err
@@ -54,4 +62,19 @@ func Create(createParams *params.DataPermCreate) (err error) {
 		return errors.New("新增失败")
 	}
 	return nil
+}
+
+func (d DataPermService) Check(checkParams *model.UserDataPermCheck) (result bool, err error) {
+	list, err := dataPermManager.SelectList(model.DataPermQuery{BizType: checkParams.BizType, BizId: checkParams.BizId, UserId: checkParams.UserId})
+	if err != nil {
+		fmt.Println("校验用户数据权限失败")
+		return false, err
+	}
+	if list == nil || len(list) == 0 {
+		fmt.Println(fmt.Sprintf("校验用户数据权限成功  用户没有权限 [biType:%s|bizId:%s|userId:%s]",
+			checkParams.BizType, checkParams.BizId, checkParams.UserId))
+		return false, nil
+	}
+	fmt.Println("校验用户数据权限成功  用户拥有权限")
+	return true, nil
 }

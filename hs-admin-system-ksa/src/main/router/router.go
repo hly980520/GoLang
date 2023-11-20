@@ -32,7 +32,7 @@ func initDataPermApi(rg *gin.RouterGroup) {
 	dataPermRouter.POST("/delete", dataPermApi.Delete)
 	dataPermRouter.POST("/update", dataPermApi.Update)
 	dataPermRouter.POST("/add", dataPermApi.Add)
-	//dataPermRouter.POST("/update-users")
-	//dataPermRouter.POST("/check")
-	//dataPermRouter.POST("/bizTypeList")
+	dataPermRouter.POST("/update-users", dataPermApi.UpdateUsers)
+	dataPermRouter.POST("/check", dataPermApi.Check)
+	dataPermRouter.POST("/bizTypeList", dataPermApi.QueryBizTypeList)
 }

@@ -29,9 +29,9 @@ type AdminDataPermDto struct {
 
 // DataPermCreate 数据权限新增参数
 type DataPermCreate struct {
-	BizType   int    `form:"bizType"`
-	BizId     string `form:"bizId"`
-	UserId    int    `form:"userId"`
+	BizType   int    `form:"bizType" binding:"required"`
+	BizId     string `form:"bizId" binding:"required"`
+	UserId    int    `form:"userId" binding:"required"`
 	Remark    string `form:"remark"`
 	CreatedBy string `form:"createdBy"`
 }
@@ -47,7 +47,7 @@ type DataPermQuery struct {
 
 // DataPermUpdate 数据权限更新参数
 type DataPermUpdate struct {
-	Id        int    `form:"id"`
+	Id        int    `form:"id" binding:"required"`
 	BizType   int    `form:"bizType"`
 	BizId     string `form:"bizId"`
 	UserId    int    `form:"userId"`
@@ -57,17 +57,17 @@ type DataPermUpdate struct {
 
 // UserDataPermUpdate 用户数据权限修改参数
 type UserDataPermUpdate struct {
-	BizType    int    `form:"bizType"`
-	BizId      string `form:"bizId"`
-	UserIdList []int  `form:"userIdList"`
+	BizType    int    `form:"bizType" binding:"required"`
+	BizId      string `form:"bizId" binding:"required"`
+	UserIdList []int  `form:"userIdList" binding:"required"`
 	EditedBy   string `form:"editedBy"`
 }
 
 // UserDataPermCheck 用户数据权限校验参数
 type UserDataPermCheck struct {
-	BizType int    `form:"bizType"`
-	BizId   string `form:"bizId"`
-	UserId  int    `form:"userId"`
+	BizType int    `form:"bizType" binding:"required"`
+	BizId   string `form:"bizId" binding:"required"`
+	UserId  int    `form:"userId" binding:"required"`
 }
 
 func (entity *AdminDataPerm) ToDto() (dto *AdminDataPermDto) {

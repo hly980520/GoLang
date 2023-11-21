@@ -75,11 +75,6 @@ func (d DataPermApi) Update(context *gin.Context) {
 		context.JSON(http.StatusOK, result.Error("10000002", err.Error()))
 		return
 	}
-	if updateParams == nil || updateParams.Id == 0 {
-		fmt.Println("请求参数异常  缺少必要参数 ")
-		context.JSON(http.StatusOK, result.Error("10000001", "缺少必要参数"))
-		return
-	}
 	updateParams.UpdatedBy = "peng.haung"
 	err = dataPermService.UpdateById(updateParams)
 	if err != nil {
@@ -116,7 +111,7 @@ func (d DataPermApi) Add(context *gin.Context) {
 	createParams := new(model.DataPermCreate)
 	err := context.ShouldBind(createParams)
 	if err != nil {
-		fmt.Println("请求参数异常  缺少必要参数 ")
+		fmt.Println("请求参数异常  缺少必要参数 ", err.Error())
 		context.JSON(http.StatusOK, result.Error("10000001", "缺少必要参数"))
 		return
 	}
@@ -133,8 +128,8 @@ func (d DataPermApi) Add(context *gin.Context) {
 func (d DataPermApi) Check(context *gin.Context) {
 	userDataPermCheck := new(model.UserDataPermCheck)
 	err := context.ShouldBind(userDataPermCheck)
-	if err != nil || userDataPermCheck.UserId == 0 || userDataPermCheck.BizType == 0 || userDataPermCheck.BizId == "" {
-		fmt.Println("请求参数异常  缺少必要参数 ")
+	if err != nil {
+		fmt.Println("请求参数异常  缺少必要参数 ", err.Error())
 		context.JSON(http.StatusOK, result.Error("10000001", "缺少必要参数"))
 		return
 	}
@@ -154,8 +149,8 @@ func (d DataPermApi) QueryBizTypeList(context *gin.Context) {
 func (d DataPermApi) UpdateUsers(context *gin.Context) {
 	userDataPermUpdate := new(model.UserDataPermUpdate)
 	err := context.ShouldBind(userDataPermUpdate)
-	if err != nil || userDataPermUpdate.BizType == 0 || userDataPermUpdate.BizId == "" || len(userDataPermUpdate.UserIdList) == 0 {
-		fmt.Println("请求参数异常  缺少必要参数 ")
+	if err != nil {
+		fmt.Println("请求参数异常  缺少必要参数 ", err.Error())
 		context.JSON(http.StatusOK, result.Error("10000001", "缺少必要参数"))
 		return
 	}

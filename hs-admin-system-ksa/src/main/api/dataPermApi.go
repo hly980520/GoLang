@@ -76,7 +76,7 @@ func (d DataPermApi) Update(context *gin.Context) {
 		return
 	}
 	updateParams.UpdatedBy = "peng.haung"
-	err = dataPermService.UpdateById(updateParams)
+	err = dataPermService.UpdateById(*updateParams)
 	if err != nil {
 		fmt.Println("服务异常, ", err.Error())
 		context.JSON(http.StatusOK, result.Error("10000003", err.Error()))
@@ -116,7 +116,7 @@ func (d DataPermApi) Add(context *gin.Context) {
 		return
 	}
 	createParams.CreatedBy = "peng.huang"
-	err = dataPermService.Create(createParams)
+	err = dataPermService.Create(*createParams)
 	if err != nil {
 		fmt.Println("服务异常, ", err.Error())
 		context.JSON(http.StatusOK, result.Error("10000003", err.Error()))
@@ -133,7 +133,7 @@ func (d DataPermApi) Check(context *gin.Context) {
 		context.JSON(http.StatusOK, result.Error("10000001", "缺少必要参数"))
 		return
 	}
-	check, err := dataPermService.Check(userDataPermCheck)
+	check, err := dataPermService.Check(*userDataPermCheck)
 	if err != nil {
 		fmt.Println("服务异常, ", err.Error())
 		context.JSON(http.StatusOK, result.Error("10000003", err.Error()))

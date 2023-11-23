@@ -28,7 +28,7 @@ func (d DataPermService) QueryById(id int) (dataPermDto *model.AdminDataPermDto,
 	return dataPerm.ToDto(), nil
 }
 
-func (d DataPermService) UpdateById(updateParams *model.DataPermUpdate) (err error) {
+func (d DataPermService) UpdateById(updateParams model.DataPermUpdate) (err error) {
 	updateById, err := dataPermManager.UpdateById(updateParams)
 	if err != nil {
 		return err
@@ -52,7 +52,7 @@ func (d DataPermService) DeleteById(id int, userAccount string) (err error) {
 	return nil
 }
 
-func (d DataPermService) Create(createParams *model.DataPermCreate) (err error) {
+func (d DataPermService) Create(createParams model.DataPermCreate) (err error) {
 	create, err := dataPermManager.Create(createParams)
 	if err != nil {
 		return err
@@ -64,7 +64,7 @@ func (d DataPermService) Create(createParams *model.DataPermCreate) (err error) 
 	return nil
 }
 
-func (d DataPermService) Check(checkParams *model.UserDataPermCheck) (result bool, err error) {
+func (d DataPermService) Check(checkParams model.UserDataPermCheck) (result bool, err error) {
 	list, err := dataPermManager.SelectList(model.DataPermQuery{BizType: checkParams.BizType, BizId: checkParams.BizId, UserId: checkParams.UserId})
 	if err != nil {
 		fmt.Println("校验用户数据权限失败")

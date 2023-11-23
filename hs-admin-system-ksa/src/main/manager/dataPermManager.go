@@ -66,7 +66,7 @@ func (d DataPermManager) SelectById(id int) (result *model.AdminDataPerm, err er
 	return data, nil
 }
 
-func (d DataPermManager) UpdateById(updateParams *model.DataPermUpdate) (count int64, err error) {
+func (d DataPermManager) UpdateById(updateParams model.DataPermUpdate) (count int64, err error) {
 	dataPerm := new(model.AdminDataPerm)
 	dataPerm.BizType = updateParams.BizType
 	dataPerm.BizId = updateParams.BizId
@@ -82,7 +82,7 @@ func (d DataPermManager) DeleteById(id int, userAccount string) (count int64, er
 	return config.SqlServer.ID(id).Update(&model.AdminDataPerm{Deleted: id, UpdatedBy: userAccount, UpdatedTime: time.Now()})
 }
 
-func (d DataPermManager) Create(createParams *model.DataPermCreate) (count int64, err error) {
+func (d DataPermManager) Create(createParams model.DataPermCreate) (count int64, err error) {
 	dataPerm := new(model.AdminDataPerm)
 	dataPerm.BizType = createParams.BizType
 	dataPerm.BizId = createParams.BizId
